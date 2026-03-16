@@ -1,395 +1,282 @@
 // ===================================
+// EmailJS Configuration
+// ===================================
+// SETUP INSTRUCTIONS:
+// 1. Daftar gratis di https://www.emailjs.com
+// 2. Buat "Email Service" → pilih Gmail → connect akun matthew.rj1703@gmail.com
+// 3. Buat "Email Template" dengan variabel: {{from_name}}, {{from_email}}, {{message}}
+// 4. Ganti 3 nilai di bawah ini dengan milik kamu:
+const EMAILJS_CONFIG = {
+  publicKey: "g2ObLVC7kSL1lJNMO", // Dashboard → Account → Public Key
+  serviceId: "service_m0s7bam", // Email Services → Service ID
+  templateId: "template_f4accx1", // Email Templates → Template ID
+};
+
+// ===================================
 // Wait for DOM to be fully loaded
 // ===================================
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize all features
-    initDarkMode();
-    initHamburgerMenu();
-    initSmoothScroll();
-    initContactForm();
-    initScrollAnimations();
-    initSkillBars();
-    console.log('Portfolio initialized successfully! 🚀');
+document.addEventListener("DOMContentLoaded", function () {
+  initEmailJS();
+  initDarkMode();
+  initHamburgerMenu();
+  initSmoothScroll();
+  initContactForm();
+  initScrollAnimations();
+  console.log("Portfolio initialized successfully!");
 });
 
 // ===================================
-// Dark Mode Toggle with LocalStorage
+// Initialize EmailJS
+// ===================================
+function initEmailJS() {
+  if (typeof emailjs !== "undefined") {
+    emailjs.init({ publicKey: EMAILJS_CONFIG.publicKey });
+    console.log("EmailJS ready");
+  } else {
+    console.warn("EmailJS SDK not loaded");
+  }
+}
+
+// ===================================
+// Dark Mode Toggle
 // ===================================
 function initDarkMode() {
-    const themeToggle = document.getElementById('themeToggle');
-    const body = document.body;
-    
-    // Check for saved theme preference or default to light mode
-    const currentTheme = localStorage.getItem('theme') || 'light';
-    
-    // Apply saved theme on page load
-    if (currentTheme === 'dark') {
-        body.classList.add('dark-mode');
-    }
-    
-    // Toggle theme on button click
-    themeToggle.addEventListener('click', function() {
-        body.classList.toggle('dark-mode');
-        
-        // Save theme preference to localStorage
-        const theme = body.classList.contains('dark-mode') ? 'dark' : 'light';
-        localStorage.setItem('theme', theme);
-        
-        // Add a small animation feedback
-        themeToggle.style.transform = 'rotate(360deg)';
-        setTimeout(() => {
-            themeToggle.style.transform = '';
-        }, 300);
-        
-        console.log(`Theme switched to: ${theme} mode`);
-    });
+  const themeToggle = document.getElementById("themeToggle");
+  const body = document.body;
+
+  // Apply saved preference on load
+  try {
+    const saved = localStorage.getItem("theme");
+    if (saved === "dark") body.classList.add("dark-mode");
+  } catch (e) {
+    // localStorage unavailable (e.g. preview env) — default to light
+  }
+
+  themeToggle.addEventListener("click", function () {
+    body.classList.toggle("dark-mode");
+    const isDark = body.classList.contains("dark-mode");
+
+    try {
+      localStorage.setItem("theme", isDark ? "dark" : "light");
+    } catch (e) {}
+
+    themeToggle.style.transition = "transform 0.4s ease";
+    themeToggle.style.transform = "rotate(360deg)";
+    setTimeout(() => {
+      themeToggle.style.transform = "";
+    }, 400);
+  });
 }
 
 // ===================================
-// Hamburger Menu Toggle (Mobile)
+// Hamburger Menu (Mobile)
 // ===================================
 function initHamburgerMenu() {
-    const hamburger = document.getElementById('hamburger');
-    const navLinks = document.getElementById('navLinks');
-    const navLinkItems = document.querySelectorAll('.nav-link');
-    
-    // Toggle menu on hamburger click
-    hamburger.addEventListener('click', function() {
-        const isActive = navLinks.classList.contains('active');
-        
-        // Toggle active class
-        hamburger.classList.toggle('active');
-        navLinks.classList.toggle('active');
-        
-        // Update aria-expanded for accessibility
-        hamburger.setAttribute('aria-expanded', !isActive);
-        
-        // Prevent body scroll when menu is open
-        document.body.style.overflow = isActive ? '' : 'hidden';
-        
-        console.log(`Menu ${isActive ? 'closed' : 'opened'}`);
-    });
-    
-    // Close menu when clicking on a nav link
-    navLinkItems.forEach(link => {
-        link.addEventListener('click', function() {
-            hamburger.classList.remove('active');
-            navLinks.classList.remove('active');
-            hamburger.setAttribute('aria-expanded', 'false');
-            document.body.style.overflow = '';
-            console.log('Menu closed after navigation');
-        });
-    });
-    
-    // Close menu when clicking outside
-    document.addEventListener('click', function(event) {
-        const isClickInsideMenu = navLinks.contains(event.target);
-        const isClickOnHamburger = hamburger.contains(event.target);
-        
-        if (!isClickInsideMenu && !isClickOnHamburger && navLinks.classList.contains('active')) {
-            hamburger.classList.remove('active');
-            navLinks.classList.remove('active');
-            hamburger.setAttribute('aria-expanded', 'false');
-            document.body.style.overflow = '';
-            console.log('Menu closed by outside click');
-        }
-    });
-    
-    // Close menu on window resize if viewport becomes larger
-    window.addEventListener('resize', function() {
-        if (window.innerWidth > 968 && navLinks.classList.contains('active')) {
-            hamburger.classList.remove('active');
-            navLinks.classList.remove('active');
-            hamburger.setAttribute('aria-expanded', 'false');
-            document.body.style.overflow = '';
-        }
-    });
+  const hamburger = document.getElementById("hamburger");
+  const navLinks = document.getElementById("navLinks");
+
+  function closeMenu() {
+    hamburger.classList.remove("active");
+    navLinks.classList.remove("active");
+    hamburger.setAttribute("aria-expanded", "false");
+    document.body.style.overflow = "";
+  }
+
+  hamburger.addEventListener("click", function () {
+    const isOpen = navLinks.classList.contains("active");
+    hamburger.classList.toggle("active");
+    navLinks.classList.toggle("active");
+    hamburger.setAttribute("aria-expanded", String(!isOpen));
+    document.body.style.overflow = isOpen ? "" : "hidden";
+  });
+
+  document.querySelectorAll(".nav-link").forEach((link) => {
+    link.addEventListener("click", closeMenu);
+  });
+
+  document.addEventListener("click", function (e) {
+    if (!navLinks.contains(e.target) && !hamburger.contains(e.target))
+      closeMenu();
+  });
+
+  window.addEventListener("resize", function () {
+    if (window.innerWidth > 968) closeMenu();
+  });
 }
 
 // ===================================
-// Smooth Scrolling for Navigation Links
+// Smooth Scrolling
 // ===================================
 function initSmoothScroll() {
-    // Select all links that point to sections with IDs
-    const scrollLinks = document.querySelectorAll('a[href^="#"]');
-    
-    scrollLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            const href = this.getAttribute('href');
-            
-            // Skip if href is just "#" or empty
-            if (href === '#' || href === '') return;
-            
-            const targetElement = document.querySelector(href);
-            
-            if (targetElement) {
-                e.preventDefault();
-                
-                // Get the header height for offset
-                const header = document.querySelector('.header');
-                const headerHeight = header ? header.offsetHeight : 0;
-                
-                // Calculate position to scroll to
-                const targetPosition = targetElement.offsetTop - headerHeight;
-                
-                // Smooth scroll to target
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
-                
-                // Update URL without jumping
-                history.pushState(null, null, href);
-                
-                console.log(`Scrolled to: ${href}`);
-            }
-        });
+  document.querySelectorAll('a[href^="#"]').forEach((link) => {
+    link.addEventListener("click", function (e) {
+      const href = this.getAttribute("href");
+      if (!href || href === "#") return;
+      const target = document.querySelector(href);
+      if (!target) return;
+      e.preventDefault();
+      const headerH = document.querySelector(".header")?.offsetHeight || 0;
+      window.scrollTo({ top: target.offsetTop - headerH, behavior: "smooth" });
+      history.pushState(null, null, href);
     });
-    
-    // Handle direct URL access with hash
-    if (window.location.hash) {
-        setTimeout(() => {
-            const targetElement = document.querySelector(window.location.hash);
-            if (targetElement) {
-                const header = document.querySelector('.header');
-                const headerHeight = header ? header.offsetHeight : 0;
-                const targetPosition = targetElement.offsetTop - headerHeight;
-                
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
-            }
-        }, 100);
-    }
+  });
+
+  if (window.location.hash) {
+    setTimeout(() => {
+      const target = document.querySelector(window.location.hash);
+      if (target) {
+        const headerH = document.querySelector(".header")?.offsetHeight || 0;
+        window.scrollTo({
+          top: target.offsetTop - headerH,
+          behavior: "smooth",
+        });
+      }
+    }, 100);
+  }
 }
 
 // ===================================
-// Contact Form Validation & Submission
+// Contact Form with EmailJS
 // ===================================
 function initContactForm() {
-    const contactForm = document.getElementById('contactForm');
-    const formMessage = document.getElementById('formMessage');
-    
-    contactForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Get form values
-        const name = document.getElementById('name').value.trim();
-        const email = document.getElementById('email').value.trim();
-        const message = document.getElementById('message').value.trim();
-        
-        // Validate form
-        if (!validateForm(name, email, message)) {
-            return;
-        }
-        
-        // Simulate form submission (replace with actual API call)
-        submitForm(name, email, message);
-    });
-    
-    function validateForm(name, email, message) {
-        // Reset previous messages
-        formMessage.className = 'form-message';
-        formMessage.style.display = 'none';
-        
-        // Validate name
-        if (name.length < 2) {
-            showMessage('Please enter a valid name (at least 2 characters)', 'error');
-            return false;
-        }
-        
-        // Validate email
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            showMessage('Please enter a valid email address', 'error');
-            return false;
-        }
-        
-        // Validate message
-        if (message.length < 10) {
-            showMessage('Please enter a message (at least 10 characters)', 'error');
-            return false;
-        }
-        
-        return true;
+  const form = document.getElementById("contactForm");
+  const msgEl = document.getElementById("formMessage");
+  const submitBtn = form.querySelector('button[type="submit"]');
+
+  function showMessage(text, type) {
+    msgEl.textContent = text;
+    msgEl.className = "form-message " + type;
+    msgEl.style.display = "block";
+    if (type === "success") setTimeout(hideMessage, 6000);
+  }
+
+  function hideMessage() {
+    msgEl.style.display = "none";
+    msgEl.className = "form-message";
+  }
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    hideMessage();
+
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const message = document.getElementById("message").value.trim();
+
+    // Validation
+    if (name.length < 2)
+      return showMessage("Nama minimal 2 karakter.", "error");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      return showMessage("Email tidak valid.", "error");
+    if (message.length < 10)
+      return showMessage("Pesan minimal 10 karakter.", "error");
+
+    // Check if EmailJS is configured
+    if (
+      EMAILJS_CONFIG.publicKey === "YOUR_PUBLIC_KEY" ||
+      EMAILJS_CONFIG.serviceId === "YOUR_SERVICE_ID" ||
+      EMAILJS_CONFIG.templateId === "YOUR_TEMPLATE_ID"
+    ) {
+      showMessage(
+        "EmailJS belum dikonfigurasi. Lihat komentar di script.js untuk cara setup.",
+        "error",
+      );
+      return;
     }
-    
-    function submitForm(name, email, message) {
-        // Show loading state
-        const submitButton = contactForm.querySelector('button[type="submit"]');
-        const originalButtonText = submitButton.textContent;
-        submitButton.textContent = 'Sending...';
-        submitButton.disabled = true;
-        
-        // Simulate API call with setTimeout
-        setTimeout(() => {
-            // Success simulation
-            showMessage('Thank you for your message! I\'ll get back to you soon.', 'success');
-            contactForm.reset();
-            submitButton.textContent = originalButtonText;
-            submitButton.disabled = false;
-            
-            console.log('Form submitted:', { name, email, message });
-            
-            // In a real application, you would send this data to a server:
-            // fetch('/api/contact', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({ name, email, message })
-            // })
-            // .then(response => response.json())
-            // .then(data => {
-            //     showMessage('Message sent successfully!', 'success');
-            //     contactForm.reset();
-            // })
-            // .catch(error => {
-            //     showMessage('Failed to send message. Please try again.', 'error');
-            // });
-        }, 1500);
+
+    submitBtn.textContent = "Sending...";
+    submitBtn.disabled = true;
+
+    try {
+      await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
+        from_name: name,
+        from_email: email,
+        message: message,
+      });
+      showMessage("Pesan terkirim! Saya akan segera membalas.", "success");
+      form.reset();
+    } catch (err) {
+      console.error("EmailJS error:", err);
+      showMessage(
+        "Gagal mengirim pesan. Coba hubungi via email langsung.",
+        "error",
+      );
+    } finally {
+      submitBtn.textContent = "Send Message";
+      submitBtn.disabled = false;
     }
-    
-    function showMessage(text, type) {
-        formMessage.textContent = text;
-        formMessage.className = `form-message ${type}`;
-        formMessage.style.display = 'block';
-        
-        // Auto-hide success messages after 5 seconds
-        if (type === 'success') {
-            setTimeout(() => {
-                formMessage.style.display = 'none';
-            }, 5000);
-        }
-    }
+  });
 }
 
 // ===================================
-// Scroll Animations (Intersection Observer)
+// Scroll Animations
 // ===================================
 function initScrollAnimations() {
-    // Select elements to animate
-    const animatedElements = document.querySelectorAll(
-        '.project-card, .skill-category, .about-content, .contact-content'
-    );
-    
-    // Create Intersection Observer
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-    
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('animate-on-scroll', 'visible');
-                // Unobserve after animation to improve performance
-                observer.unobserve(entry.target);
-            }
-        });
-    }, observerOptions);
-    
-    // Observe all animated elements
-    animatedElements.forEach(element => {
-        element.classList.add('animate-on-scroll');
-        observer.observe(element);
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1, rootMargin: "0px 0px -50px 0px" },
+  );
+
+  // Project cards: staggered fade-in with pop on scroll
+  document.querySelectorAll(".project-card").forEach((el, i) => {
+    el.classList.add("animate-on-scroll");
+    el.style.transitionDelay = i * 0.1 + "s";
+    observer.observe(el);
+  });
+
+  // Other sections: simple fade-in
+  document
+    .querySelectorAll(".about-content, .contact-content")
+    .forEach((el) => {
+      el.classList.add("animate-on-scroll");
+      observer.observe(el);
     });
 }
 
 // ===================================
-// Animate Skill Bars on Scroll
+// Active Nav Highlight on Scroll
 // ===================================
-function initSkillBars() {
-    const skillBars = document.querySelectorAll('.skill-progress');
-    
-    const observerOptions = {
-        threshold: 0.5
-    };
-    
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                // Trigger skill bar animation
-                const bar = entry.target;
-                const progress = bar.style.getPropertyValue('--progress');
-                bar.style.width = '0%';
-                
-                setTimeout(() => {
-                    bar.style.width = progress;
-                }, 100);
-                
-                observer.unobserve(bar);
-            }
-        });
-    }, observerOptions);
-    
-    skillBars.forEach(bar => {
-        observer.observe(bar);
-    });
-}
+window.addEventListener("scroll", function () {
+  const sections = document.querySelectorAll("section[id]");
+  const navLinks = document.querySelectorAll(".nav-link");
+  const scrollPos = window.pageYOffset + 150;
+  let current = "";
 
-// ===================================
-// Additional Features & Utilities
-// ===================================
-
-// Active Navigation Link Highlight on Scroll
-window.addEventListener('scroll', function() {
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-link');
-    
-    let current = '';
-    const scrollPosition = window.pageYOffset + 150;
-    
-    sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.clientHeight;
-        
-        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-            current = section.getAttribute('id');
-        }
-    });
-    
-    navLinks.forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href') === `#${current}`) {
-            link.classList.add('active');
-        }
-    });
-});
-
-// Header Shadow on Scroll
-let lastScroll = 0;
-window.addEventListener('scroll', function() {
-    const header = document.querySelector('.header');
-    const currentScroll = window.pageYOffset;
-    
-    if (currentScroll > 50) {
-        header.style.boxShadow = 'var(--shadow-md)';
-    } else {
-        header.style.boxShadow = 'none';
+  sections.forEach((sec) => {
+    if (
+      scrollPos >= sec.offsetTop &&
+      scrollPos < sec.offsetTop + sec.clientHeight
+    ) {
+      current = sec.getAttribute("id");
     }
-    
-    lastScroll = currentScroll;
+  });
+
+  navLinks.forEach((link) => {
+    link.classList.toggle(
+      "active",
+      link.getAttribute("href") === "#" + current,
+    );
+  });
 });
 
-// Prevent Scroll Restoration (for better UX with smooth scroll)
-if ('scrollRestoration' in history) {
-    history.scrollRestoration = 'manual';
-}
-
-// Log page load time for debugging
-window.addEventListener('load', function() {
-    const loadTime = performance.now();
-    console.log(`Page loaded in ${loadTime.toFixed(2)}ms`);
+// ===================================
+// Header Shadow on Scroll
+// ===================================
+window.addEventListener("scroll", function () {
+  const header = document.querySelector(".header");
+  header.style.boxShadow =
+    window.pageYOffset > 50 ? "var(--shadow-md)" : "none";
 });
 
-// Export functions for testing (optional)
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        initDarkMode,
-        initHamburgerMenu,
-        initSmoothScroll,
-        initContactForm,
-        initScrollAnimations,
-        initSkillBars
-    };
-}
+if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+
+window.addEventListener("load", () => {
+  console.log("Page loaded in " + Math.round(performance.now()) + "ms");
+});
