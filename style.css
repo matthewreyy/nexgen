@@ -496,7 +496,7 @@ section {
 .image-container {
   width: 200px;
   height: 200px;
-  border-radius: 50%; /* bentuk bulat */
+  border-radius: 50%;
   overflow: hidden;
 }
 
@@ -504,6 +504,19 @@ section {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.image-placeholder {
+  width: 100%;
+  max-width: 300px;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--bg-accent), var(--bg-primary));
+  border: 2px solid var(--border-color);
+  color: var(--text-tertiary);
 }
 
 .about-subtitle {
@@ -550,6 +563,26 @@ section {
   font-weight: 500;
 }
 
+.about-resume {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.resume-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.resume-note {
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
 /* ===================================
    Projects Section
    =================================== */
@@ -557,6 +590,7 @@ section {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
+  align-items: stretch;
 }
 
 .project-card {
@@ -564,20 +598,36 @@ section {
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid var(--border-color);
-  transition: var(--transition-smooth);
+  transition:
+    opacity 0.6s ease,
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
 }
 
 .project-card:hover {
-  transform: translateY(-8px);
-  box-shadow: var(--shadow-xl);
+  transform: translateY(-12px) scale(1.02);
+  box-shadow:
+    0 24px 40px -8px rgba(220, 38, 38, 0.18),
+    var(--shadow-xl);
+  border-color: var(--accent-primary);
+}
+
+body.dark-mode .project-card:hover {
+  box-shadow:
+    0 24px 40px -8px rgba(239, 68, 68, 0.25),
+    var(--shadow-xl);
 }
 
 .project-image {
   width: 100%;
-  height: 250px;
+  height: 200px;
   background-color: var(--bg-accent);
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .project-image .image-placeholder {
@@ -587,10 +637,14 @@ section {
   align-items: center;
   justify-content: center;
   color: var(--text-tertiary);
+  border-radius: 0;
 }
 
 .project-content {
   padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .project-title {
@@ -605,6 +659,7 @@ section {
   color: var(--text-secondary);
   margin-bottom: 1rem;
   line-height: 1.6;
+  flex: 1;
 }
 
 .project-tags {
@@ -629,6 +684,7 @@ section {
   gap: 1rem;
   padding-top: 1rem;
   border-top: 1px solid var(--border-color);
+  margin-top: auto;
 }
 
 .project-link {
@@ -645,109 +701,12 @@ section {
 }
 
 /* ===================================
-   Skills Section
+   Contact Section
    =================================== */
-.skills {
+.contact {
   background-color: var(--bg-secondary);
 }
 
-.skills-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 3rem;
-}
-
-.skill-category {
-  background-color: var(--bg-primary);
-  padding: 2rem;
-  border-radius: 16px;
-  border: 1px solid var(--border-color);
-  transition: var(--transition-base);
-}
-
-.skill-category:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-}
-
-.category-title {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1.5rem;
-  color: var(--accent-primary);
-}
-
-.skill-list {
-  list-style: none;
-}
-
-.skill-item {
-  margin-bottom: 1.5rem;
-}
-
-.skill-item:last-child {
-  margin-bottom: 0;
-}
-
-.skill-name {
-  display: block;
-  color: var(--text-primary);
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-}
-
-.skill-bar {
-  width: 100%;
-  height: 8px;
-  background-color: var(--bg-accent);
-  border-radius: 4px;
-  overflow: hidden;
-  position: relative;
-}
-
-.skill-progress {
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    var(--accent-primary),
-    var(--accent-secondary)
-  );
-  border-radius: 4px;
-  width: var(--progress);
-  transition: width 1s ease-out;
-  position: relative;
-  overflow: hidden;
-}
-
-.skill-progress::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-/* ===================================
-   Contact Section
-   =================================== */
 .contact-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -990,11 +949,6 @@ section {
     grid-template-columns: 1fr;
   }
 
-  .skills-grid {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-
   .about-stats {
     padding-top: 1.5rem;
     margin-top: 1.5rem;
@@ -1053,4 +1007,32 @@ section {
 .animate-on-scroll.visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Project cards: use same fade-in, hover pop activates after visible */
+.project-card.animate-on-scroll {
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.project-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.project-card.visible:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow:
+    0 24px 40px -8px rgba(220, 38, 38, 0.18),
+    var(--shadow-xl);
+  border-color: var(--accent-primary);
+}
+
+body.dark-mode .project-card.visible:hover {
+  box-shadow:
+    0 24px 40px -8px rgba(239, 68, 68, 0.25),
+    var(--shadow-xl);
 }
